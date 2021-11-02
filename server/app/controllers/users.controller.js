@@ -5,7 +5,7 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
     // Validate request
-    if (!req.body.title) {
+    if (!req.body.user_name) {
       res.status(400).send({
         message: "Content can not be empty!"
       });
@@ -50,13 +50,43 @@ exports.findAll = (req, res) => {
       });
   };
 
+//find a user with a user_email
+exports.findOneUser = (req, res) => {
+    const user_email = req.params.user_email;
+  
+    User.findOne({
+      where: { user_email: user_email }
+    })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Error retrieving User with email=" + user_email
+        });
+      });
+  };
 
-// Update user_password by the id in the request
-exports.updatePassword = (req, res) => {
-    const id = req.params.id;
+// Find a single user with a user_id
+exports.findOne = (req, res) => {
+    const user_id = req.params.user_id;
+  
+    User.findByPk(user_id)
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Error retrieving User with id=" + user_id
+        });
+      });
+  };
+//Update user_password by user_id in the request
+exports.updateUser = (req, res) => {
+    const user_id = req.params.user_id;
   
     User.update(req.body, {
-      where: { id: id }
+      where: { user_id: user_id }
     })
       .then(num => {
         if (num == 1) {
@@ -65,13 +95,13 @@ exports.updatePassword = (req, res) => {
           });
         } else {
           res.send({
-            message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`
+            message: `Cannot update User with id=${user_id}. Maybe User was not found or req.body is empty!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Error updating User with id=" + id
+          message: "Error updating User with id=" + user_id
         });
       });
   };
@@ -79,10 +109,10 @@ exports.updatePassword = (req, res) => {
 
 //Delete a user with the specified id in the request
 exports.deleteUser = (req, res) => {
-    const id = req.params.id;
+    const user_id = req.params.user_id;
   
     User.destroy({
-      where: { id: id }
+      where: { user_id: user_id }
     })
       .then(num => {
         if (num == 1) {
@@ -91,33 +121,41 @@ exports.deleteUser = (req, res) => {
           });
         } else {
           res.send({
-            message: `Cannot delete User with id=${id}. Maybe User was not found!`
+            message: `Cannot delete User with id=${user_id}. Maybe User was not found!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Could not delete User with id=" + id
+          message: "Could not delete User with id=" + user_id
         });
       });
   };
 
 
-//Delete all users from the database.
+
+
+// Delete all users from the database.
 exports.deleteAllUsers = (req, res) => {
+  const sure = req.query.sure;
+  if (sure == "yes") {
     User.destroy({
       where: {},
-      truncate: false
+      truncate: false,
     })
-      .then(nums => {
+      .then((nums) => {
         res.send({ message: `${nums} Users were deleted successfully!` });
       })
-      .catch(err => {
+      .catch((err) => {
         res.status(500).send({
           message:
-            err.message || "Some error occurred while removing all users."
+            err.message || "Some error occurred while removing all users.",
         });
       });
+  } else {
+    res.send({ message: "No estas seguro de esta accion! (query sure = 'yes' para proceder)" });
+  } 
+
   };
 
 // Find a single Tutorial with an id
