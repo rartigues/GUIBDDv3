@@ -67,6 +67,25 @@ exports.findOneUser = (req, res) => {
       });
   };
 
+//find user_name by user_id
+exports.findOneName = (req, res) => {
+    const user_id = req.params.user_id;
+  
+    User.findOne({
+      where: { user_id: user_id },
+      attributes: ['user_name']
+    })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Error retrieving User with id=" + user_id
+        });
+      });
+};
+
+
 // Find a single user with a user_id
 exports.findOne = (req, res) => {
     const user_id = req.params.user_id;
