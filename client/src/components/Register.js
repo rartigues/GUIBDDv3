@@ -31,8 +31,12 @@ const Register = ({setAuth}) => {
             });
 
             const parseRes = await response.json();
-            localStorage.setItem("token", parseRes.token);
-            setAuth(true);
+            if (!parseRes.token){ //!Para que no se autentifique si no se puede registrar
+                alert("User already exists");    
+            } else {
+                localStorage.setItem("token", parseRes.token);
+                setAuth(true);
+            }
 
         } catch (err) {
             console.error(err.message);
