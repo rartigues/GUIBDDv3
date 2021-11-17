@@ -1,10 +1,15 @@
 const dbConfig = require("../config/db.config.js");
 
+
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWD, {
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWD,  {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorsAliases: false,
+  define: {
+    timestamps: false,
+    freezeTableName: true
+  },
 
   pool: {
     max: dbConfig.pool.max,
