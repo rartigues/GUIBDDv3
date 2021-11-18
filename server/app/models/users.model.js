@@ -10,7 +10,6 @@ module.exports = (sequelize, Sequelize) => {
     fecha_nacimiento: Sequelize.DATE,
     telefono: Sequelize.STRING, //Puede ser integrer pero esta el '+'?
     email: { type: Sequelize.STRING, allowNull: false },
-    dias_libres: { type: Sequelize.INTEGER, allowNull: false },
   });
 
   const estado = sequelize.define("estado", {
@@ -24,13 +23,33 @@ module.exports = (sequelize, Sequelize) => {
     },
     estado: {
       type: Sequelize.STRING,
-      verify: {
-        isIn: [["trabajo", "vacaciones", "licencia"]],
+      validate: {
+        isIn: {
+          args: [["trabajo", "vacaciones", "licencia"]],
+          msg: "El estado debe ser trabajo, vacaciones o licencia"
+        }
       },
     },
     fecha_fin_estado: Sequelize.DATE,
     dias_libres_restantes: Sequelize.INTEGER,
   });
+
+  const departamento = sequelize.define("departamento", {
+    ID_departamento: { type: Sequelize.INTEGER, primaryKey: true },
+    nombre: { type: Sequelize.STRING, allowNull: false },
+  });
+
+  const contrato = sequelize.define("contrato", {
+    ID_contrato: { type: Sequelize.INTEGER, primaryKey: true },
+    ID_departamento: { type: Sequelize.INTEGER, references: { model: departamento, key: "ID_departamento" } },
+    RUT_e: { type: Sequelize.STRING, references: { model: empleado, key: "RUT", allowNull: false} },
+    sueldo: { type: Sequelize.INTEGER, allowNull: false },
+    jornada: { type: Sequelize.INTEGER, allowNull: false },
+    dias_libres: { type: Sequelize.INTEGER, allowNull: false },
+    cargo: { type: Sequelize.STRING, allowNull: false },
+    p_horas_extras: { type: Sequelize.INTEGER, allowNull: false },
+  });
+
 
   const pago = sequelize.define("pago", {
     ID_pago: { type: Sequelize.INTEGER, primaryKey: true },
@@ -40,21 +59,13 @@ module.exports = (sequelize, Sequelize) => {
         model: empleado,
         key: "RUT",
       },
+      allowNull: false,
     },
     fecha: { type: Sequelize.DATE, allowNull: false },
     monto: { type: Sequelize.INTEGER, allowNull: false },
   });
 
-  const contrato = sequelize.define("contrato", {
-    ID_contrato: { type: Sequelize.INTEGER, primaryKey: true },
-    sueldo: { type: Sequelize.INTEGER, allowNull: false },
-    horas_jornada: { type: Sequelize.INTEGER, allowNull: false },
-    dias_libres: { type: Sequelize.INTEGER, allowNull: false },
-    cargo: { type: Sequelize.STRING, allowNull: false },
-    p_horas_extras: { type: Sequelize.INTEGER, allowNull: false },
-  });
-
-  const tiene = sequelize.define("tiene", {
+  const horas_semana = sequelize.define("horas_semana", {
     RUT_e: {
       type: Sequelize.STRING,
       primaryKey: true,
@@ -63,41 +74,10 @@ module.exports = (sequelize, Sequelize) => {
         key: "RUT",
       },
     },
-    ID_contrato_c: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      references: {
-        model: contrato,
-        key: "ID_contrato",
-      },
-    },
+    fecha: { type: Sequelize.DATE, primaryKey: true },
+    horas: { type: Sequelize.INTEGER, allowNull: false },
   });
-
-  const departamento = sequelize.define("departamento", {
-    ID_departamento: { type: Sequelize.INTEGER, primaryKey: true },
-    nombre: { type: Sequelize.STRING, allowNull: false },
-    horario: Sequelize.STRING, //String?
-  });
-
-  const pertenece = sequelize.define("pertenece", {
-    ID_contrato_c: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      references: {
-        model: contrato,
-        key: "ID_contrato",
-      },
-    },
-    ID_departamento_d: {
-      type: Sequelize.INTEGER,
-      primaryKey: true, //!PrimaryKey?
-      references: {
-        model: departamento,
-        key: "ID_departamento",
-      },
-    },
-  });
-
+  
   const empezar = sequelize.define("empezar", {
     RUT_e: {
       type: Sequelize.STRING,
@@ -122,7 +102,10 @@ module.exports = (sequelize, Sequelize) => {
     timestamp: { type: Sequelize.DATE, primaryKey: true },
   });
 
-  const horas_semana = sequelize.define("horas_semana", {
+
+
+/*
+  const tiene = sequelize.define("tiene", {
     RUT_e: {
       type: Sequelize.STRING,
       primaryKey: true,
@@ -131,17 +114,49 @@ module.exports = (sequelize, Sequelize) => {
         key: "RUT",
       },
     },
-    horas: { type: Sequelize.INTEGER, allowNull: false },
+    ID_contrato_c: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      references: {
+        model: contrato,
+        key: "ID_contrato",
+      },
+    },
   });
+
+  
+  const pertenece = sequelize.define("pertenece", {
+    ID_contrato_c: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      references: {
+        model: contrato,
+        key: "ID_contrato",
+      },
+    },
+    ID_departamento_d: {
+      type: Sequelize.INTEGER,
+      primaryKey: true, //!PrimaryKey?
+      references: {
+        model: departamento,
+        key: "ID_departamento",
+      },
+    },
+  });*/
+
+  
+
+ 
+
 
   return (
     empleado,
     estado,
     pago,
     contrato,
-    tiene,
+    //tiene,
     departamento,
-    pertenece,
+    //pertenece,
     empezar,
     terminar,
     horas_semana
