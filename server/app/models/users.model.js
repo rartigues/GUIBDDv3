@@ -27,6 +27,7 @@ module.exports = (sequelize, Sequelize) => {
         isIn: {
           args: [["trabajo", "vacaciones", "licencia"]],
           msg: "El estado debe ser trabajo, vacaciones o licencia"
+          
         }
       },
     },
